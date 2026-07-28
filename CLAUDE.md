@@ -8,7 +8,8 @@ Kaiserredux (KX) — a Hearts of Iron IV total-overhaul mod (a fork/expansion of
 
 Navigation is grep-driven: identifiers are the join keys between directories, so `grep -r` for an id (e.g. a focus id, event namespace, `GFX_` name, or `TAG_` idea) is how you find all pieces of a feature.
 
-- `descriptor.mod` is **gitignored on purpose** (its `path=` line is machine-specific; see Readme.txt for the install flow). Never commit it; don't assume it exists on a fresh clone.
+- **`descriptor.mod` is listed in `.gitignore` but is nonetheless TRACKED**, because upstream committed it before the ignore rule existed — and `.gitignore` only ever applies to *untracked* files. So editing it dirties the working tree and shows up in `git status`, which is the opposite of what the ignore entry implies. (This entry previously claimed the file was ignored and must never be committed; that was wrong, and acting on it would leave the tree dirty and make `fork.sh` refuse to run.) Its `path=` line is machine-specific and is upstream's Windows path, so leave that alone.
+- **The launcher does not read the repo's `descriptor.mod` directly** — it reads `~/Documents/Paradox Interactive/Hearts of Iron IV/mod/<name>.mod`, whose own `path=` points at the checkout. But it *regenerates* that file from `descriptor.mod`, so an edit made only to the launcher's copy silently reverts on the next start. To rename the mod or change its metadata, edit `descriptor.mod` and commit it.
 - Git history carries no information (most commit messages are literally "a"). Use blame/diffs, not messages.
 
 ## replace_path: the rule that governs every edit
