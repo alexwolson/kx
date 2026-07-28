@@ -131,6 +131,12 @@ The map is fully custom — **vanilla province/state ids are meaningless here**.
 
 **Validate any audit before believing its output.** Every one of these scripts was wrong on its first run in a way that looked like findings — 1641 phantom missing events from assuming `namespace.NUMBER`, 871 phantom ideas from a tokenizer that split on apostrophes, 45 "dangling" AI roles from conflating two namespaces. A high resolve rate says the extractor is sane; it says nothing about whether the residual failures are real, so spot-check those individually against a known-good control.
 
+**Triage a hard crash from the crash archive before blaming the mod.** `~/Documents/Paradox Interactive/Hearts of Iron IV/crashes/<timestamp>/` holds one directory per crash, and they accumulate for months. Each has `exception.txt` (signal + stack), `meta.yml` (`HasMods`, `Mods:`, `AppVersion`) and `dlc_load.json` (`enabled_mods`). Fingerprint a crash by its **`hoi4` stack frames with the addresses stripped** — the addresses move with ASLR, the `symbol + offset` strings do not — then look for the same fingerprint in older directories. If it appears in one with `"enabled_mods":[]` and `HasMods: false`, the crash is vanilla's and no amount of mod-side investigation will fix it.
+
+Do not read the symbol *names* in these traces literally. The shipped binary is stripped, so the symbolizer prints the nearest exported symbol plus a huge offset (`+ 334000`); names like `CCommand` or `luabind` are whatever happened to be nearby, not the failing code. Only the offsets are evidence.
+
+This settled the ctrl+click "cancel all construction" SIGSEGV: identical frame set on unmodded 1.19.2.0.4cba and on the mod under 1.19.2.0.a729 — a vanilla bug that survived a patch.
+
 **Run the same audit against vanilla as a control before calling a pattern a bug.** The mod and the base game speak the same language, so any check that flags *correct* script will flag it in `Hearts of Iron IV/` too. This is the cheapest and most decisive validation available, and it is the one that catches a wrong mental model rather than a wrong regex — the failure mode a resolve rate cannot see, because the extractor is working perfectly and measuring the wrong thing. It is how the NAND claim above was disproved: the "bug" turned out to be *more* common in Paradox's own files than in the mod's, which is not a result any real defect produces. If vanilla's rate matches or exceeds the mod's, the finding is about your model, not the code.
 
 ## In-repo documentation
