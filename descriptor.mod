@@ -1,4 +1,4 @@
-name="Kaiserredux"
+name="FastKX"
 replace_path="common/abilities"
 replace_path="common/ai_areas"
 replace_path="common/ai_equipment"
